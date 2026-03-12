@@ -19,6 +19,9 @@ param appInsightsId string
 @description('Application Insights instrumentation key.')
 param appInsightsInstrumentationKey string
 
+@description('Default hostname of the ingress function app (for APIM backend routing).')
+param ingressFunctionAppHostname string
+
 // ---------------------------------------------------------------------------
 // API Management (Consumption SKU)
 // ---------------------------------------------------------------------------
@@ -98,6 +101,35 @@ resource paymentIngressApi 'Microsoft.ApiManagement/service/apis@2023-09-01-prev
     subscriptionRequired: true
     isCurrent: true
     apiType: 'http'
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Backend: Ingress Function App
+// ---------------------------------------------------------------------------
+resource ingressFuncBackend 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
+  parent: apim
+  name: 'ingress-func-backend'
+  properties: {
+    description: 'Ingress Azure Function App backend'
+    url: 'https://${ingressFunctionAppHostname}/api'
+    protocol: 'http'
+    tls: {
+      validateCertificateChain: true
+      validateCertificateName: true
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// API-level inbound policy
+// ---------------------------------------------------------------------------
+resource paymentIngressApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2023-09-01-preview' = {
+  parent: paymentIngressApi
+  name: 'policy'
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('../policies/payment-ingress-policy.xml')
   }
 }
 

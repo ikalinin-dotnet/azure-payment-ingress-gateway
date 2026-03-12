@@ -72,6 +72,7 @@ module apim 'modules/apim.bicep' = {
     publisherName: apimPublisherName
     appInsightsId: observability.outputs.appInsightsId
     appInsightsInstrumentationKey: observability.outputs.instrumentationKey
+    ingressFunctionAppHostname: functions.outputs.ingressFunctionAppHostname
   }
 }
 

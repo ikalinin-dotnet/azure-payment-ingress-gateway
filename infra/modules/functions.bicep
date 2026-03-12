@@ -201,6 +201,9 @@ output hostingPlanName string = hostingPlan.name
 @description('Ingress function app name.')
 output ingressFunctionAppName string = ingressFunctionApp.name
 
+@description('Ingress function app default hostname (used as APIM backend).')
+output ingressFunctionAppHostname string = ingressFunctionApp.properties.defaultHostName
+
 @description('Ingress function app resource ID.')
 output ingressFunctionAppId string = ingressFunctionApp.id
 

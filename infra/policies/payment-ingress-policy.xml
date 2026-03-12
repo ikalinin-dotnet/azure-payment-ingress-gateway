@@ -1,0 +1,33 @@
+<policies>
+  <inbound>
+    <base />
+
+    <!-- DDoS protection: max 100 calls per 60 seconds per client IP -->
+    <rate-limit-by-key calls="100"
+                       renewal-period="60"
+                       counter-key="@(context.Request.IpAddress)" />
+
+    <!-- Provider IP whitelist (replace with real provider CIDR ranges) -->
+    <ip-filter action="allow">
+      <address>198.51.100.1</address>
+      <address>198.51.100.2</address>
+    </ip-filter>
+
+    <!-- Propagate or generate a correlation ID for end-to-end tracing -->
+    <set-header name="X-Correlation-ID" exists-action="override">
+      <value>@(context.RequestId)</value>
+    </set-header>
+
+    <!-- Route to the ingress function app backend -->
+    <set-backend-service id="apim-generated-policy" backend-id="ingress-func-backend" />
+  </inbound>
+  <backend>
+    <base />
+  </backend>
+  <outbound>
+    <base />
+  </outbound>
+  <on-error>
+    <base />
+  </on-error>
+</policies>
