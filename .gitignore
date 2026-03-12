@@ -1,3 +1,7 @@
+# AI agent directories
+.claude
+.claude/
+
 # Build results
 [Dd]ebug/
 [Rr]elease/

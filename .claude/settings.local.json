@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(dotnet new:*)",
-      "Bash(dotnet sln:*)",
-      "Bash(cd \"D:/Fork/azure-payment-ingress-gateway\" && dotnet build src/Ingress.Function/Ingress.Function.csproj 2>&1)"
-    ]
-  }
-}
