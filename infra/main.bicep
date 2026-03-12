@@ -86,6 +86,8 @@ module functions 'modules/functions.bicep' = {
     serviceBusFullyQualifiedNamespace: serviceBus.outputs.fullyQualifiedNamespace
     cosmosDbEndpoint: cosmosDb.outputs.endpoint
     keyVaultUri: keyVault.outputs.keyVaultUri
+    serviceBusNamespaceId: serviceBus.outputs.namespaceId
+    keyVaultId: keyVault.outputs.keyVaultId
   }
 }
 

@@ -22,6 +22,12 @@ param cosmosDbEndpoint string
 @description('Key Vault URI.')
 param keyVaultUri string
 
+@description('Service Bus namespace resource ID (for RBAC scope).')
+param serviceBusNamespaceId string
+
+@description('Key Vault resource ID (for RBAC scope).')
+param keyVaultId string
+
 // ---------------------------------------------------------------------------
 // Storage Account (required by Azure Functions runtime)
 // ---------------------------------------------------------------------------
@@ -141,6 +147,45 @@ resource processorFunctionApp 'Microsoft.Web/sites@2023-12-01' = {
         }
       ])
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// RBAC: Ingress → Service Bus Data Sender
+// ---------------------------------------------------------------------------
+resource ingressServiceBusSenderRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(serviceBusNamespaceId, ingressFunctionApp.identity.principalId, 'ServiceBusDataSender')
+  scope: resourceGroup()
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '69a216fc-b8fb-44d8-bc22-1f3c2cd27a39')
+    principalId: ingressFunctionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// ---------------------------------------------------------------------------
+// RBAC: Processor → Service Bus Data Receiver
+// ---------------------------------------------------------------------------
+resource processorServiceBusReceiverRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(serviceBusNamespaceId, processorFunctionApp.identity.principalId, 'ServiceBusDataReceiver')
+  scope: resourceGroup()
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4f6d3b9b-027b-4f4c-9142-0e5a2a2247e0')
+    principalId: processorFunctionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// ---------------------------------------------------------------------------
+// RBAC: Ingress → Key Vault Secrets User
+// ---------------------------------------------------------------------------
+resource ingressKeyVaultSecretsUserRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(keyVaultId, ingressFunctionApp.identity.principalId, 'KeyVaultSecretsUser')
+  scope: resourceGroup()
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e0')
+    principalId: ingressFunctionApp.identity.principalId
+    principalType: 'ServicePrincipal'
   }
 }
 
